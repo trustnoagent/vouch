@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOUCH — Agent Registry Explorer</title>
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0C0B0A;--cream:#E8E0D0;--mg:#E6007A;--mg50:rgba(230,0,122,0.5);--mg08:rgba(230,0,122,0.06);--c60:rgba(232,224,208,0.6);--c30:rgba(232,224,208,0.3);--c10:rgba(232,224,208,0.1);--c05:rgba(232,224,208,0.05);--serif:'Playfair Display',Georgia,serif;--body:'Cormorant Garamond',Georgia,serif;--mono:'IBM Plex Mono',monospace;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--blue:#60a5fa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--cream);font-family:var(--body);-webkit-font-smoothing:antialiased;min-height:100vh}
+::selection{background:var(--mg);color:var(--bg)}
+a{color:var(--mg);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+.nav{border-bottom:1px solid var(--c10);padding:16px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--cream)}
+.nav-logo svg{width:20px;height:20px}
+.nav-name{font-family:var(--serif);font-weight:900;font-size:14px;letter-spacing:3px;text-transform:uppercase}
+.nav-links{display:flex;gap:16px;flex-wrap:wrap}
+.nav-links a{font-family:var(--mono);font-size:10px;font-weight:300;letter-spacing:1.5px;text-transform:uppercase;color:var(--c30);text-decoration:none}
+.nav-links a:hover{color:var(--mg)}
+.header{text-align:center;margin-bottom:48px}
+.header-label{font-family:var(--mono);font-size:10px;font-weight:300;letter-spacing:5px;text-transform:uppercase;color:var(--mg50);margin-bottom:12px}
+.header h1{font-family:var(--serif);font-weight:900;font-size:clamp(28px,5vw,42px);font-style:italic;margin-bottom:8px}
+.header p{font-family:var(--body);font-size:17px;font-weight:300;color:var(--c30);font-style:italic}
+.stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--c10);border:1px solid var(--c10);margin-bottom:40px}
+.stat-cell{background:var(--bg);padding:20px;text-align:center}
+.stat-num{font-family:var(--serif);font-weight:900;font-size:32px;color:var(--cream);margin-bottom:4px}
+.stat-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--c30)}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--c10);margin-bottom:32px}
+.tab{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--c30);padding:12px 24px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab:hover{color:var(--cream)}.tab.active{color:var(--mg);border-bottom-color:var(--mg)}
+.agent-list{display:flex;flex-direction:column;gap:1px;background:var(--c10);border:1px solid var(--c10);margin-bottom:40px}
+.agent-card{background:var(--bg);padding:24px;transition:background .2s;cursor:pointer}
+.agent-card:hover{background:var(--mg08)}
+.agent-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.agent-info{flex:1;min-width:0}
+.agent-name{font-family:var(--serif);font-weight:700;font-size:18px;margin-bottom:4px}
+.agent-wallet-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.agent-wallet{font-family:var(--mono);font-size:10px;color:var(--c30);letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.solscan-link{font-family:var(--mono);font-size:9px;color:var(--mg);text-decoration:none;white-space:nowrap}
+.solscan-link:hover{text-decoration:underline}
+.agent-desc{font-family:var(--body);font-size:14px;color:var(--c60);margin-bottom:12px;font-weight:300;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.agent-caps{font-family:var(--mono);font-size:9px;color:var(--mg50);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.agent-score-col{text-align:right;flex-shrink:0}
+.score-circle{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:900;font-size:20px;margin-left:auto;margin-bottom:4px}
+.score-low{border:2px solid var(--red);color:var(--red)}
+.score-med{border:2px solid var(--yellow);color:var(--yellow)}
+.score-high{border:2px solid var(--green);color:var(--green)}
+.score-label{font-family:var(--mono);font-size:8px;color:var(--c30);letter-spacing:2px;text-transform:uppercase;text-align:center}
+.agent-breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--c10);margin-top:12px;border:1px solid var(--c05)}
+.bd-cell{background:var(--bg);padding:10px 8px;text-align:center}
+.bd-val{font-family:var(--mono);font-size:14px;font-weight:500;margin-bottom:2px}
+.bd-label{font-family:var(--mono);font-size:7px;letter-spacing:1.5px;text-transform:uppercase;color:var(--c30)}
+.anomaly-flags{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.flag{font-family:var(--mono);font-size:10px;padding:6px 10px;border-left:3px solid var(--red);background:rgba(248,113,113,0.05);color:var(--c60)}
+.flag.medium{border-color:var(--yellow);background:rgba(251,191,36,0.05)}
+.flag.low{border-color:var(--blue);background:rgba(96,165,250,0.05)}
+.empty-state{text-align:center;padding:60px 20px;border:1px solid var(--c10)}
+.empty-state p{font-family:var(--body);font-size:18px;color:var(--c30);font-style:italic;margin-bottom:16px}
+.form-section{display:none}.form-section.active{display:block}
+.form{border:1px solid var(--c10);padding:32px;margin-bottom:40px}
+.form-title{font-family:var(--serif);font-weight:700;font-size:22px;margin-bottom:20px;font-style:italic}
+.form-group{margin-bottom:16px}
+.form-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mg50);margin-bottom:6px;display:block}
+.form-input{width:100%;background:transparent;border:1px solid var(--c10);padding:12px 16px;font-family:var(--mono);font-size:13px;color:var(--cream);outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--mg)}.form-input::placeholder{color:var(--c30)}
+textarea.form-input{resize:vertical;min-height:80px;font-family:var(--body);font-size:15px}
+.form-hint{font-family:var(--mono);font-size:9px;color:var(--c30);margin-top:4px}
+.form-btn{padding:14px 32px;background:var(--mg);color:var(--cream);font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;transition:all .2s;margin-top:8px}
+.form-btn:hover{background:#ff1a8c}.form-btn:disabled{opacity:0.4;cursor:not-allowed}
+.form-msg{font-family:var(--mono);font-size:11px;margin-top:12px;padding:10px;border:1px solid var(--c10)}
+.form-msg.success{color:var(--green);border-color:rgba(74,222,128,0.2)}
+.form-msg.error{color:var(--mg);border-color:var(--mg50)}
+.lookup{display:flex;gap:8px;margin-bottom:32px}
+.lookup .form-input{flex:1}.lookup .form-btn{margin-top:0}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center;padding:24px;overflow-y:auto}
+.modal-overlay.active{display:flex}
+.modal{background:var(--bg);border:1px solid var(--c10);max-width:640px;width:100%;max-height:90vh;overflow-y:auto;padding:32px;position:relative}
+.modal-close{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:18px;color:var(--c30);cursor:pointer;background:none;border:none;padding:4px 8px}
+.modal-close:hover{color:var(--mg)}
+.verdict-badge{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border:1px solid}
+.verdict-trusted{color:var(--green);border-color:var(--green);background:rgba(74,222,128,0.06)}
+.verdict-caution{color:var(--yellow);border-color:var(--yellow);background:rgba(251,191,36,0.06)}
+.verdict-suspicious{color:var(--red);border-color:var(--red);background:rgba(248,113,113,0.06)}
+.verdict-dangerous{color:#ef4444;border-color:#ef4444;background:rgba(239,68,68,0.1)}
+.scoring-weights{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--c10);border:1px solid var(--c10);margin-bottom:40px}
+.sw-cell{background:var(--bg);padding:14px;text-align:center}
+.sw-bar{height:4px;background:var(--c10);border-radius:2px;margin-bottom:6px;overflow:hidden}
+.sw-fill{height:100%;border-radius:2px;transition:width .5s}
+.sw-val{font-family:var(--serif);font-weight:900;font-size:22px;margin-bottom:2px}
+.sw-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--c30)}
+.sw-weight{font-family:var(--mono);font-size:8px;color:var(--mg50)}
+.footer{border-top:1px solid var(--c10);padding:24px 0;margin-top:40px;display:flex;justify-content:space-between;align-items:center}
+.footer-text{font-family:var(--mono);font-size:9px;color:var(--c10);letter-spacing:2px;text-transform:uppercase}
+@media(max-width:700px){
+  .stats-bar{grid-template-columns:1fr}.agent-top{flex-direction:column}
+  .agent-score-col{text-align:left;display:flex;align-items:center;gap:12px}
+  .score-circle{margin-left:0}.agent-breakdown{grid-template-columns:repeat(2,1fr)}
+  .lookup{flex-direction:column}.nav-links{gap:10px}.scoring-weights{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="nav">
+  <a href="/" class="nav-logo">
+    <svg viewBox="0 0 360 360" fill="none"><path d="M68 52 L175 296 L180 308 L185 296 L292 52" fill="none" stroke="#E8E0D0" stroke-width="30" stroke-linejoin="miter" stroke-linecap="square"/><line x1="88" y1="262" x2="285" y2="82" stroke="#E6007A" stroke-width="8" stroke-linecap="square"/><circle cx="310" cy="300" r="10" fill="#E6007A"/></svg>
+    <span class="nav-name">Vouch</span>
+  </a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/manifesto.html">Manifesto</a>
+    <a href="/docs.html">API Docs</a>
+    <a href="https://x.com/trustnoagent" target="_blank">X</a>
+  </div>
+</div>
+<div class="header">
+  <div class="header-label">Agent Registry</div>
+  <h1>Explorer</h1>
+  <p>On-chain reputation scoring for AI agents on Solana</p>
+</div>
+<div class="stats-bar">
+  <div class="stat-cell"><div class="stat-num" id="s-agents">—</div><div class="stat-label">Registered Agents</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-vouches">—</div><div class="stat-label">Total Vouches</div></div>
+  <div class="stat-cell"><div class="stat-num" id="s-queries">—</div><div class="stat-label">Registry Queries</div></div>
+</div>
+<div class="scoring-weights" id="sw-bar" style="display:none">
+  <div class="sw-cell"><div class="sw-bar"><div class="sw-fill" id="sw-onchain" style="width:0;background:var(--blue)"></div></div><div class="sw-val" id="sw-onchain-v">—</div><div class="sw-label">On-Chain</div><div class="sw-weight">60% weight</div></div>
+  <div class="sw-cell"><div class="sw-bar"><div class="sw-fill" id="sw-vouch" style="width:0;background:var(--mg)"></div></div><div class="sw-val" id="sw-vouch-v">—</div><div class="sw-label">Vouching</div><div class="sw-weight">25% weight</div></div>
+  <div class="sw-cell"><div class="sw-bar"><div class="sw-fill" id="sw-endorse" style="width:0;background:var(--green)"></div></div><div class="sw-val" id="sw-endorse-v">—</div><div class="sw-label">Endorsements</div><div class="sw-weight">15% weight</div></div>
+</div>
+<div class="tabs">
+  <div class="tab active" data-tab="registry">Registry</div>
+  <div class="tab" data-tab="register">Register Agent</div>
+  <div class="tab" data-tab="lookup">Lookup</div>
+</div>
+<div class="form-section active" id="tab-registry">
+  <div class="agent-list" id="agent-list"></div>
+  <div class="empty-state" id="empty-state" style="display:none"><p>No agents registered yet. Be the first.</p></div>
+</div>
+<div class="form-section" id="tab-register">
+  <div class="form">
+    <div class="form-title">Register an Agent</div>
+    <div class="form-group"><label class="form-label">Solana Wallet Address *</label><input class="form-input" id="r-wallet" placeholder="Agent's Solana wallet address"></div>
+    <div class="form-group"><label class="form-label">Agent Name *</label><input class="form-input" id="r-name" placeholder="e.g. AlphaTrader v2"><div class="form-hint">Max 100 characters</div></div>
+    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="r-desc" placeholder="What does this agent do?"></textarea></div>
+    <div class="form-group"><label class="form-label">Capabilities</label><input class="form-input" id="r-caps" placeholder="e.g. trading, yield-farming, analysis"></div>
+    <div class="form-group"><label class="form-label">Website</label><input class="form-input" id="r-web" placeholder="https://..."></div>
+    <button class="form-btn" id="r-submit">Register Agent</button>
+    <div class="form-msg" id="r-msg" style="display:none"></div>
+  </div>
+</div>
+<div class="form-section" id="tab-lookup">
+  <div class="lookup"><input class="form-input" id="l-wallet" placeholder="Enter agent wallet address"><button class="form-btn" id="l-submit">Lookup</button></div>
+  <div id="lookup-result"></div>
+</div>
+<div class="modal-overlay" id="modal"><div class="modal"><button class="modal-close" id="modal-close">&times;</button><div id="modal-content"></div></div></div>
+<div class="footer"><div class="footer-text">VOUCH &middot; v0.2.0</div><div class="footer-text"><a href="/" style="color:var(--c30)">trustnoagent.com</a></div></div>
+</div>
+<script>
+const API='/api';
+
+function scoreClass(s){return s>=60?'score-high':s>=25?'score-med':'score-low'}
+function verdictClass(s){return s>=60?'verdict-trusted':s>=25?'verdict-caution':'verdict-suspicious'}
+function verdictText(s){return s>=60?'Trusted':s>=25?'Caution':'Suspicious'}
+function flagClass(sev){return sev==='high'||sev==='critical'?'':sev==='medium'?'medium':'low'}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function shortWallet(w){return w.slice(0,6)+'...'+w.slice(-4)}
+
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.form-section').forEach(s=>s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+async function loadStats(){
+  try{
+    const r=await(await fetch(API+'/stats')).json();
+    document.getElementById('s-agents').textContent=r.stats.totalAgents;
+    document.getElementById('s-vouches').textContent=r.stats.totalVouches;
+    document.getElementById('s-queries').textContent=r.stats.totalQueries;
+  }catch(e){}
+}
+
+async function loadAgents(){
+  try{
+    const r=await(await fetch(API+'/agents')).json();
+    const list=document.getElementById('agent-list');
+    const empty=document.getElementById('empty-state');
+    if(r.agents.length===0){list.style.display='none';empty.style.display='block';return}
+    list.style.display='flex';empty.style.display='none';
+
+    list.innerHTML=r.agents.map(a=>{
+      let onchain={};try{onchain=JSON.parse(a.onchain_data||'{}')}catch(e){}
+      const anomalies=onchain.anomalies||[];
+      const penalty=onchain.anomalyPenalty||0;
+
+      return `<div class="agent-card" onclick="showAgent('${a.wallet}')">
+        <div class="agent-top">
+          <div class="agent-info">
+            <div class="agent-name">${esc(a.name)}</div>
+            <div class="agent-wallet-row">
+              <span class="agent-wallet">${a.wallet}</span>
+              <a href="https://solscan.io/account/${a.wallet}" target="_blank" class="solscan-link" onclick="event.stopPropagation()">Solscan ↗</a>
+            </div>
+            ${a.description?'<div class="agent-desc">'+esc(a.description)+'</div>':''}
+            ${a.capabilities?'<div class="agent-caps">'+esc(a.capabilities)+'</div>':''}
+          </div>
+          <div class="agent-score-col">
+            <div class="score-circle ${scoreClass(a.reputation_score)}">${a.reputation_score}</div>
+            <div class="score-label">${verdictText(a.reputation_score)}</div>
+          </div>
+        </div>
+        <div class="agent-breakdown">
+          <div class="bd-cell"><div class="bd-val" style="color:var(--blue)">${a.onchain_score||0}</div><div class="bd-label">On-Chain</div></div>
+          <div class="bd-cell"><div class="bd-val" style="color:var(--mg)">${a.vouch_score||0}</div><div class="bd-label">Vouch</div></div>
+          <div class="bd-cell"><div class="bd-val">${onchain.age?.days||0}d</div><div class="bd-label">Wallet Age</div></div>
+          <div class="bd-cell"><div class="bd-val">${onchain.activity?.totalTxs||0}</div><div class="bd-label">Transactions</div></div>
+        </div>
+        ${anomalies.length>0?'<div class="anomaly-flags">'+anomalies.map(f=>'<div class="flag '+flagClass(f.severity)+'">⚠️ '+esc(f.type)+' — '+esc(f.detail)+'</div>').join('')+'</div>':''}
+      </div>`}).join('');
+  }catch(e){console.error(e)}
+}
+
+async function showAgent(wallet){
+  try{
+    const r=await(await fetch(API+'/agents/'+wallet)).json();
+    const a=r.agent;const v=r.vouches||[];const s=r.scoring||{};
+    const bd=s.breakdown||{};const anomalies=bd.anomalies||[];
+
+    document.getElementById('modal-content').innerHTML=`
+      <div style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-family:var(--serif);font-weight:900;font-size:24px;margin-bottom:4px">${esc(a.name)}</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <span style="font-family:var(--mono);font-size:10px;color:var(--c30);word-break:break-all">${a.wallet}</span>
+              <a href="https://solscan.io/account/${a.wallet}" target="_blank" style="font-family:var(--mono);font-size:9px;color:var(--mg);white-space:nowrap">Solscan ↗</a>
+            </div>
+            <span class="verdict-badge ${verdictClass(a.reputation_score)}">${verdictText(a.reputation_score)} — ${a.reputation_score}/100</span>
+          </div>
+          <div class="score-circle ${scoreClass(a.reputation_score)}" style="width:72px;height:72px;font-size:28px;flex-shrink:0">${a.reputation_score}</div>
+        </div>
+      </div>
+
+      ${a.description?'<p style="font-family:var(--body);font-size:16px;color:var(--c60);line-height:1.6;margin-bottom:12px">'+esc(a.description)+'</p>':''}
+      ${a.capabilities?'<div style="font-family:var(--mono);font-size:9px;color:var(--mg50);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">'+esc(a.capabilities)+'</div>':''}
+
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mg50);margin-bottom:8px;margin-top:20px">Score Breakdown</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--c10);border:1px solid var(--c10);margin-bottom:16px">
+        <div style="background:var(--bg);padding:14px;text-align:center">
+          <div style="font-family:var(--serif);font-weight:900;font-size:24px;color:var(--blue)">${s.onchain||0}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--c30);letter-spacing:2px;text-transform:uppercase">On-Chain (60%)</div>
+        </div>
+        <div style="background:var(--bg);padding:14px;text-align:center">
+          <div style="font-family:var(--serif);font-weight:900;font-size:24px;color:var(--mg)">${s.vouch||0}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--c30);letter-spacing:2px;text-transform:uppercase">Vouch (25%)</div>
+        </div>
+        <div style="background:var(--bg);padding:14px;text-align:center">
+          <div style="font-family:var(--serif);font-weight:900;font-size:24px;color:var(--green)">${s.endorsement||0}</div>
+          <div style="font-family:var(--mono);font-size:8px;color:var(--c30);letter-spacing:2px;text-transform:uppercase">Endorse (15%)</div>
+        </div>
+      </div>
+
+      <div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mg50);margin-bottom:8px">On-Chain Evidence</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--c10);border:1px solid var(--c10);margin-bottom:16px">
+        <div style="background:var(--bg);padding:12px"><span style="font-family:var(--mono);font-size:9px;color:var(--c30)">WALLET AGE</span><br><span style="font-family:var(--mono);font-size:16px;font-weight:500">${bd.age?.days||0} days</span></div>
+        <div style="background:var(--bg);padding:12px"><span style="font-family:var(--mono);font-size:9px;color:var(--c30)">TRANSACTIONS</span><br><span style="font-family:var(--mono);font-size:16px;font-weight:500">${bd.activity?.totalTxs||0}</span></div>
+        <div style="background:var(--bg);padding:12px"><span style="font-family:var(--mono);font-size:9px;color:var(--c30)">SUCCESS RATE</span><br><span style="font-family:var(--mono);font-size:16px;font-weight:500;color:${(bd.activity?.successRate||0)>=80?'var(--green)':'var(--yellow)'}">${bd.activity?.successRate||0}%</span></div>
+        <div style="background:var(--bg);padding:12px"><span style="font-family:var(--mono);font-size:9px;color:var(--c30)">SOL BALANCE</span><br><span style="font-family:var(--mono);font-size:16px;font-weight:500">${bd.balance?.sol||0} SOL</span></div>
+        <div style="background:var(--bg);padding:12px"><span style="font-family:var(--mono);font-size:9px;color:var(--c30)">RECENT ACTIVITY</span><br><span style="font-family:var(--mono);font-size:16px;font-weight:500;color:${bd.activity?.recentActivity?'var(--green)':'var(--red)'}">${bd.activity?.recentActivity?'Active':'Inactive'}</span></div>
+        <div style="background:var(--bg);padding:12px"><span style="font-family:var(--mono);font-size:9px;color:var(--c30)">ANOMALY PENALTY</span><br><span style="font-family:var(--mono);font-size:16px;font-weight:500;color:${(bd.anomalyPenalty||0)>0?'var(--red)':'var(--green)'}">-${bd.anomalyPenalty||0}</span></div>
+      </div>
+
+      ${anomalies.length>0?`<div style="font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin-bottom:8px">⚠️ Anomaly Flags (${anomalies.length})</div><div class="anomaly-flags" style="margin-bottom:16px">`+anomalies.map(f=>'<div class="flag '+flagClass(f.severity)+'"><strong>'+esc(f.type)+'</strong> ['+f.severity.toUpperCase()+'] — '+esc(f.detail)+'</div>').join('')+'</div>':'<div style="font-family:var(--mono);font-size:10px;color:var(--green);margin-bottom:16px">✓ No anomalies detected</div>'}
+
+      <div style="font-family:var(--mono);font-size:9px;color:var(--c30);margin-bottom:20px">Last scored: ${s.lastScored||'Never'} · <a href="https://solscan.io/account/${a.wallet}" target="_blank">View full wallet history on Solscan ↗</a></div>
+
+      <div style="border-top:1px solid var(--c10);padding-top:20px">
+        <div style="font-family:var(--serif);font-weight:700;font-size:16px;margin-bottom:16px;font-style:italic">Vouch for this agent</div>
+        <div class="form-group"><input class="form-input" id="v-wallet" placeholder="Your wallet address"></div>
+        <div class="form-group"><input class="form-input" id="v-comment" placeholder="Comment (optional)"></div>
+        <div class="form-group"><select class="form-input" id="v-score" style="cursor:pointer"><option value="1">1 — Caution</option><option value="2">2 — Neutral</option><option value="3" selected>3 — Trusted</option><option value="4">4 — Highly Trusted</option><option value="5">5 — Exemplary</option></select></div>
+        <button class="form-btn" onclick="submitVouch('${a.wallet}')">Submit Vouch</button>
+        <div class="form-msg" id="v-msg" style="display:none"></div>
+      </div>
+
+      ${v.length>0?'<div style="border-top:1px solid var(--c10);padding-top:20px;margin-top:20px"><div style="font-family:var(--serif);font-weight:700;font-size:16px;margin-bottom:12px;font-style:italic">Vouches ('+v.length+')</div>'+v.map(vouch=>'<div style="padding:12px 0;border-bottom:1px solid var(--c05)"><div style="font-family:var(--mono);font-size:10px;color:var(--c30)">'+shortWallet(vouch.voucher_wallet)+' · Score: <strong style="color:var(--cream)">'+vouch.score+'/5</strong> · '+new Date(vouch.created_at).toLocaleDateString()+'</div>'+(vouch.comment?'<div style="font-family:var(--body);font-size:14px;color:var(--c60);margin-top:4px">'+esc(vouch.comment)+'</div>':'')+'</div>').join('')+'</div>':''}
+    `;
+
+    document.getElementById('modal').classList.add('active');
+  }catch(e){console.error(e)}
+}
+
+async function submitVouch(wallet){
+  const msg=document.getElementById('v-msg');
+  const vW=document.getElementById('v-wallet').value.trim();
+  const cm=document.getElementById('v-comment').value.trim();
+  const sc=document.getElementById('v-score').value;
+  if(!vW){showMsg(msg,'Enter your wallet address','error');return}
+  try{
+    const r=await fetch(API+'/agents/'+wallet+'/vouch',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({voucher_wallet:vW,comment:cm,score:parseInt(sc)})});
+    const d=await r.json();
+    if(r.ok){showMsg(msg,'Vouch submitted. Score updated to '+d.agent.reputation_score,'success');loadStats();loadAgents()}
+    else showMsg(msg,d.error,'error');
+  }catch(e){showMsg(msg,'Request failed','error')}
+}
+
+document.getElementById('r-submit').addEventListener('click',async()=>{
+  const msg=document.getElementById('r-msg');
+  const w=document.getElementById('r-wallet').value.trim();
+  const n=document.getElementById('r-name').value.trim();
+  const d=document.getElementById('r-desc').value.trim();
+  const c=document.getElementById('r-caps').value.trim();
+  const web=document.getElementById('r-web').value.trim();
+  if(!w||!n){showMsg(msg,'Wallet and name are required','error');return}
+  try{
+    const r=await fetch(API+'/agents/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wallet:w,name:n,description:d,capabilities:c,website:web})});
+    const data=await r.json();
+    if(r.ok){showMsg(msg,'Agent registered! Scoring in progress...','success');document.querySelectorAll('#tab-register .form-input').forEach(i=>i.value='');loadStats();loadAgents()}
+    else showMsg(msg,data.error,'error');
+  }catch(e){showMsg(msg,'Request failed','error')}
+});
+
+document.getElementById('l-submit').addEventListener('click',async()=>{
+  const w=document.getElementById('l-wallet').value.trim();if(!w)return;
+  try{const r=await fetch(API+'/agents/'+w);if(r.ok)showAgent(w);
+  else document.getElementById('lookup-result').innerHTML='<div class="empty-state"><p>No agent found for this wallet.</p></div>'
+  }catch(e){document.getElementById('lookup-result').innerHTML='<div class="empty-state"><p>Lookup failed.</p></div>'}
+});
+
+document.getElementById('modal-close').addEventListener('click',()=>document.getElementById('modal').classList.remove('active'));
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))document.getElementById('modal').classList.remove('active')});
+
+function showMsg(el,t,type){el.textContent=t;el.className='form-msg '+type;el.style.display='block'}
+
+loadStats();loadAgents();
+</script>
+</body>
+</html>
+

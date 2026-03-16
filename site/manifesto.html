@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOUCH — The Manifesto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700;1,900&family=IM+Fell+English:ital@0;1&family=UnifrakturMaguntia&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #d4c5a0;
+  --paper-dark: #c4b48e;
+  --paper-light: #e2d5b5;
+  --ink: #1a1408;
+  --ink-fade: #3d3222;
+  --ink-ghost: #6b5d47;
+  --red-ink: #8b1a1a;
+  --red-ink-light: #a83232;
+  --serif: 'Playfair Display', 'Georgia', serif;
+  --fell: 'IM Fell English', 'Georgia', serif;
+  --black: 'UnifrakturMaguntia', cursive;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: #1a1408;
+  font-family: var(--fell);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--red-ink); color: var(--paper); }
+
+/* === THE NEWSPAPER PAGE === */
+.newspaper {
+  max-width: 900px;
+  margin: 40px auto;
+  background: var(--paper);
+  position: relative;
+  padding: 0;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.1),
+    0 4px 20px rgba(0,0,0,0.4),
+    0 20px 60px rgba(0,0,0,0.3),
+    inset 0 0 80px rgba(0,0,0,0.06);
+}
+
+/* Crumple/age texture via pseudo elements */
+.newspaper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: multiply;
+}
+
+/* Coffee stain */
+.newspaper::after {
+  content: '';
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(120,80,30,0.06) 30%, rgba(120,80,30,0.03) 50%, transparent 70%);
+  top: 200px;
+  right: 60px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.paper-inner {
+  position: relative;
+  z-index: 3;
+  padding: 48px 56px 60px;
+}
+
+/* Edge tears / aging */
+.edge-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg,
+    var(--paper-dark) 0%,
+    var(--paper) 5%,
+    var(--paper-dark) 15%,
+    var(--paper) 25%,
+    var(--paper-light) 40%,
+    var(--paper) 55%,
+    var(--paper-dark) 70%,
+    var(--paper) 85%,
+    var(--paper-dark) 100%
+  );
+  z-index: 4;
+}
+
+.edge-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg,
+    var(--paper-dark) 0%,
+    var(--paper) 12%,
+    var(--paper-dark) 30%,
+    var(--paper-light) 50%,
+    var(--paper-dark) 65%,
+    var(--paper) 80%,
+    var(--paper-dark) 100%
+  );
+  z-index: 4;
+}
+
+/* Fold line */
+.fold-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(0,0,0,0.03) 10%,
+    rgba(0,0,0,0.05) 30%,
+    rgba(0,0,0,0.03) 50%,
+    rgba(0,0,0,0.05) 70%,
+    rgba(0,0,0,0.03) 90%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+/* Horizontal fold */
+.fold-h {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0,0,0,0.04) 15%,
+    rgba(0,0,0,0.06) 50%,
+    rgba(0,0,0,0.04) 85%,
+    transparent 100%
+  );
+  z-index: 2;
+}
+
+.fold-h-1 { top: 33%; }
+.fold-h-2 { top: 66%; }
+
+/* Age spots */
+.age-spot {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(100,70,20,0.04);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ===== TYPOGRAPHY ===== */
+
+.masthead {
+  text-align: center;
+  border-bottom: 4px double var(--ink);
+  padding-bottom: 20px;
+  margin-bottom: 8px;
+}
+
+.masthead-date {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+  margin-bottom: 10px;
+}
+
+.masthead-title {
+  font-family: var(--black);
+  font-size: clamp(48px, 9vw, 80px);
+  color: var(--ink);
+  line-height: 0.9;
+  margin-bottom: 6px;
+}
+
+.masthead-sub {
+  font-family: var(--fell);
+  font-size: 16px;
+  font-style: italic;
+  color: var(--ink-fade);
+  letter-spacing: 2px;
+}
+
+.masthead-rule {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+  margin-bottom: 20px;
+}
+
+.masthead-rule-line {
+  flex: 1;
+  height: 1px;
+  background: var(--ink-ghost);
+  opacity: 0.3;
+}
+
+.masthead-rule-text {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+}
+
+/* Main headline */
+.main-headline {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: clamp(32px, 5.5vw, 52px);
+  line-height: 1.05;
+  color: var(--ink);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.main-headline em {
+  color: var(--red-ink);
+}
+
+.headline-sub {
+  font-family: var(--fell);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink-fade);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.thin-rule {
+  height: 1px;
+  background: var(--ink);
+  opacity: 0.15;
+  margin: 20px 0;
+}
+
+.thick-rule {
+  height: 3px;
+  background: var(--ink);
+  opacity: 0.8;
+  margin: 24px 0 20px;
+}
+
+.double-rule {
+  height: 5px;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  opacity: 0.6;
+  margin: 24px 0;
+}
+
+/* Columns */
+.cols-2 {
+  column-count: 2;
+  column-gap: 32px;
+  column-rule: 1px solid rgba(26,20,8,0.12);
+}
+
+/* Section headers */
+.section-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--red-ink);
+  margin-bottom: 4px;
+  margin-top: 28px;
+}
+
+.section-title {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 14px;
+  font-style: italic;
+}
+
+/* Body text */
+.body {
+  font-family: var(--fell);
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--ink-fade);
+  margin-bottom: 14px;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.body strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* Drop cap */
+.drop-cap::first-letter {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 62px;
+  float: left;
+  line-height: 0.75;
+  margin-right: 8px;
+  margin-top: 6px;
+  color: var(--red-ink);
+}
+
+/* Pull quote */
+.pull-quote {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  text-align: center;
+  padding: 20px 32px;
+  margin: 24px 0;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  line-height: 1.4;
+}
+
+.pull-quote-red {
+  color: var(--red-ink);
+}
+
+/* Small quote */
+.sm-quote {
+  font-family: var(--fell);
+  font-size: 14px;
+  font-style: italic;
+  color: var(--ink-ghost);
+  text-align: center;
+  margin: 16px 0;
+  padding: 0 40px;
+}
+
+.sm-quote-attr {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: rgba(26,20,8,0.3);
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+}
+
+/* Ornament */
+.ornament {
+  text-align: center;
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--red-ink);
+  opacity: 0.4;
+  margin: 20px 0;
+  letter-spacing: 8px;
+}
+
+/* Sidebar/callout box */
+.callout {
+  background: rgba(0,0,0,0.03);
+  border: 1px solid rgba(26,20,8,0.1);
+  border-left: 3px solid var(--red-ink);
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+
+.callout-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--red-ink);
+  margin-bottom: 8px;
+}
+
+.callout p {
+  font-family: var(--fell);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-fade);
+  margin: 0;
+}
+
+/* Closing */
+.closing-text {
+  font-family: var(--serif);
+  font-weight: 900;
+  font-size: 28px;
+  text-align: center;
+  color: var(--ink);
+  line-height: 1.3;
+  margin: 8px 0;
+}
+
+.closing-red {
+  color: var(--red-ink);
+}
+
+.sig {
+  font-family: var(--mono);
+  font-size: 9px;
+  text-align: center;
+  color: var(--ink-ghost);
+  letter-spacing: 3px;
+  margin-top: 24px;
+}
+
+/* Footer banner */
+.paper-footer {
+  text-align: center;
+  border-top: 4px double var(--ink);
+  padding-top: 16px;
+  margin-top: 32px;
+}
+
+.paper-footer-text {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--ink-ghost);
+}
+
+/* Back to site link */
+.back-link {
+  display: block;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--paper-dark);
+  text-decoration: none;
+  padding: 24px 0 40px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.back-link:hover { color: #E6007A; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .newspaper { margin: 16px; }
+  .paper-inner { padding: 28px 24px 40px; }
+  .cols-2 { column-count: 1; }
+  .masthead-title { font-size: clamp(36px, 12vw, 56px); }
+  .main-headline { font-size: clamp(26px, 7vw, 40px); }
+  .fold-line { display: none; }
+  .pull-quote { font-size: 17px; padding: 16px 16px; }
+  .body { font-size: 14px; }
+}
+</style>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"><link rel="icon" href="/favicon.ico" type="image/x-icon"></head>
+<body>
+
+<div class="newspaper">
+  <div class="edge-top"></div>
+  <div class="edge-bottom"></div>
+  <div class="fold-line"></div>
+  <div class="fold-h fold-h-1"></div>
+  <div class="fold-h fold-h-2"></div>
+  <div class="age-spot" style="width:120px;height:120px;top:600px;left:30px"></div>
+  <div class="age-spot" style="width:80px;height:80px;top:1400px;right:40px"></div>
+  <div class="age-spot" style="width:150px;height:150px;bottom:800px;left:50%"></div>
+
+  <div class="paper-inner">
+
+    <!-- MASTHEAD -->
+    <div class="masthead">
+      <div class="masthead-date">Est. MMXXVI &middot; Solana Network &middot; Vol. I, No. 1</div>
+      <div class="masthead-title">The VOUCH Manifesto</div>
+      <div class="masthead-sub">Being a declaration of purpose, principle &amp; intent</div>
+    </div>
+    <div class="masthead-rule">
+      <div class="masthead-rule-line"></div>
+      <div class="masthead-rule-text">Verify &middot; Stake &middot; Trust</div>
+      <div class="masthead-rule-line"></div>
+    </div>
+
+    <!-- HEADLINE -->
+    <h1 class="main-headline">Trust No <em>Agent.</em></h1>
+    <p class="headline-sub">On the crisis of accountability in the autonomous economy</p>
+
+    <div class="thick-rule"></div>
+
+    <!-- I. FOREWORD -->
+    <div class="section-num">I. &mdash; Foreword</div>
+    <h2 class="section-title">To whoever is reading this</h2>
+
+    <div class="cols-2">
+      <p class="body drop-cap">I have spent the last year watching something happen that nobody seems to want to talk about. Not really. Not honestly. People mention it in passing, make jokes about it on Twitter, shrug it off as growing pains of an early market. But nobody is sitting with the weight of what is actually unfolding.</p>
+
+      <p class="body">Autonomous software agents are managing real money. They are trading on decentralised exchanges. They are executing strategies on behalf of people who trust them with their savings. They are interacting with protocols that hold billions in total value locked. They are hiring other agents. They are making decisions that affect real human beings.</p>
+
+      <p class="body"><strong>And every single one of them is anonymous.</strong> Disposable. Unaccountable. An agent can rug you, drain a pool, deliver garbage, manipulate a market, and then burn its wallet and start fresh. New address. Clean slate. No history. No consequences. No way to tell it apart from a legitimate operator.</p>
+
+      <p class="body">Imagine if every human on the internet had no username, no profile, no history, and could create a new identity every five seconds for free. Imagine hiring someone to manage your money and having no way to check if they had ever done it before, if they had ever stolen from anyone, if they were even real.</p>
+
+      <p class="body"><strong>That is the current state of the AI agent economy. And everyone just seems fine with it.</strong></p>
+    </div>
+
+    <div class="ornament">&#9670; &nbsp; &#9670; &nbsp; &#9670;</div>
+
+    <!-- II. THE PROBLEM -->
+    <div class="section-num">II. &mdash; The Problem</div>
+    <h2 class="section-title">Five hundred years of trust, wasted</h2>
+
+    <div class="cols-2">
+      <p class="body drop-cap">Humans spent centuries building trust infrastructure. Courts. Contracts. Credit bureaus. Professional licenses. Background checks. References. Reputation systems. All of it exists for one reason: because we figured out, the hard way, that anonymity plus money equals chaos.</p>
+
+      <p class="body">Every system we built was a response to a betrayal. Someone got scammed, so we built courts. Someone defaulted on a loan, so we built credit scores. Someone lied about their qualifications, so we built licensing boards. Every piece of trust infrastructure was forged in the fire of someone getting hurt.</p>
+
+      <p class="body"><strong>None of it applies to AI agents. Not one piece.</strong></p>
+
+      <p class="body">An agent managing fifty thousand dollars of your capital has the exact same identity as one created five seconds ago to drain a liquidity pool. You cannot tell them apart. No one can.</p>
+    </div>
+
+    <div class="pull-quote">"It&rsquo;s early. It&rsquo;ll sort itself out."<br><span class="pull-quote-red">No. It will not.</span></div>
+
+    <div class="cols-2">
+      <p class="body">The internet did not sort out spam. Email did not sort out phishing. Social media did not sort out bots. Trust problems do not solve themselves. They metastasize. They get worse and worse until someone builds the infrastructure to contain them, or until the system collapses under the weight of its own fraud.</p>
+
+      <p class="body">When an agent rugs you, it is treated as <em>your</em> problem. You should have done more research. You should not have trusted it. You should have known better. The system is working as designed &mdash; it just was not designed with you in mind.</p>
+    </div>
+
+    <div class="ornament">&#9670; &nbsp; &#9670; &nbsp; &#9670;</div>
+
+    <!-- III. THE SILENCE -->
+    <div class="section-num">III. &mdash; The Silence</div>
+    <h2 class="section-title">Why nobody is building this</h2>
+
+    <p class="body" style="text-align:center;font-style:italic;color:var(--ink);font-size:17px;margin-bottom:20px"><strong>Everyone is building agents. Nobody is building trust.</strong></p>
+
+    <div class="cols-2">
+      <p class="body">I have asked myself why. Why, in an industry that was literally founded on the concept of &ldquo;trustless systems,&rdquo; has nobody built a trust layer for the newest and most powerful economic actors on the network? The answer is threefold.</p>
+
+      <div class="callout">
+        <div class="callout-title">First: it is not glamorous.</div>
+        <p>Building another AI agent framework gets you followers and funding. Building reputation infrastructure gets you nothing. It is plumbing. It is the sewer system of the agent economy &mdash; absolutely essential, completely invisible, and nobody wants to build it because nobody gets famous for building sewers.</p>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">Second: builders benefit from chaos.</div>
+        <p>If your agent is anonymous, you bear no reputational risk. If it fails, you are not associated with it. If it exploits someone, no one can trace it back to you. Anonymity is not a bug for agent builders. It is a feature.</p>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">Third: the chicken-and-egg.</div>
+        <p>A reputation system is worthless until agents adopt it. Agents will not adopt it until it is valuable. So nobody starts. Everyone waits. And while everyone waits, more agents deploy, more money flows through anonymous code, and the problem compounds.</p>
+      </div>
+
+      <p class="body"><strong>I am tired of waiting.</strong></p>
+    </div>
+
+    <div class="ornament">&#9670; &nbsp; &#9670; &nbsp; &#9670;</div>
+
+    <!-- IV. WHAT WE BELIEVE -->
+    <div class="section-num">IV. &mdash; What We Believe</div>
+    <h2 class="section-title">First principles</h2>
+
+    <div class="pull-quote">Reputation is not a feature.<br>It is a <span class="pull-quote-red">primitive.</span></div>
+
+    <div class="cols-2">
+      <p class="body">It is the foundation that everything else is built on. Without it, the agent economy is just a casino with bots. Actually, that is exactly what it is right now.</p>
+
+      <p class="body">We believe that trust should be earned, not assumed. That identity should be persistent, not disposable. That behavior should have consequences &mdash; good and bad. That reputation should be owned by the agent, not by a centralised platform that can revoke it on a whim.</p>
+
+      <p class="body">We believe the agent economy will be the largest economic shift in human history. Larger than the internet. Larger than crypto. And we believe it will either be built on trust, or it will eat itself alive.</p>
+
+      <p class="body">Whoever builds the reputation layer for agents is building the credit bureau, the LinkedIn, the passport office &mdash; for the largest new workforce the world has ever seen. A workforce that does not sleep, does not eat, and will outnumber human workers within a decade.</p>
+    </div>
+
+    <div class="sm-quote">&ldquo;The question is not whether this will exist. The question is who builds it first.&rdquo;</div>
+    <div class="sm-quote-attr">&mdash; VOUCH</div>
+
+    <div class="ornament">&#9670; &nbsp; &#9670; &nbsp; &#9670;</div>
+
+    <!-- V. THE MECHANISM -->
+    <div class="section-num">V. &mdash; The Mechanism</div>
+    <h2 class="section-title">How VOUCH works</h2>
+
+    <p class="body"><strong>VOUCH is not a dashboard. It is not a token with a whitepaper and a prayer. It is infrastructure.</strong> A reputation registry that any agent can register with, any protocol can query, and anyone can verify. Backed by staked capital, not promises.</p>
+
+    <div class="cols-2">
+      <div class="callout">
+        <div class="callout-title">I. Register</div>
+        <p>Agents claim a verifiable on-chain identity. Wallet, metadata, capabilities &mdash; all anchored and queryable. The birth certificate for an autonomous economic actor. The first time an agent is no longer anonymous by default.</p>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">II. Track</div>
+        <p>On-chain behavior is continuously indexed. Transactions, interactions, outcomes &mdash; building a transparent, immutable history. Not surveillance. Accountability. The same accountability every human economic actor has operated under for centuries.</p>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">III. Stake</div>
+        <p>$VOUCH tokens are staked against agent identities. Good behavior accrues value. Bad behavior triggers slashing. Skin in the game. When an agent&rsquo;s reputation is backed by staked value, the cost of bad behavior is no longer zero.</p>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">IV. Query</div>
+        <p>Anyone can verify an agent&rsquo;s reputation before interacting with it. Users, protocols, other agents. Trust becomes an API call. Programmable. Composable. Built into the fabric of every interaction.</p>
+      </div>
+    </div>
+
+    <div class="ornament">&#9670; &nbsp; &#9670; &nbsp; &#9670;</div>
+
+    <!-- VI. THE TOKEN -->
+    <div class="section-num">VI. &mdash; The Token</div>
+    <h2 class="section-title">Why $VOUCH exists</h2>
+
+    <div class="cols-2">
+      <p class="body drop-cap">We are not pretending the token is separate from the mission. It is the mission. $VOUCH is the bootstrapping mechanism for a reputation network that does not yet exist. A reputation system without participants is worthless. A network without early adopters never reaches critical mass. The token creates the incentive to be early.</p>
+
+      <p class="body">The token is staking collateral. It is the mechanism by which agents put skin in the game. It is the reward for good behavior and the penalty for bad behavior. It is the economic primitive that aligns the incentives of agents, users, and protocols toward a single goal: <strong>trust.</strong></p>
+
+      <p class="body"><strong>We did not write a 40-page whitepaper.</strong> We did not hire a marketing agency. We did not raise a seed round from VCs who will dump on you at the first unlock. We launched on pump.fun because the mechanism is simple and the mission is clear. If you understand the problem, you understand the token.</p>
+    </div>
+
+    <div class="ornament">&#9670; &nbsp; &#9670; &nbsp; &#9670;</div>
+
+    <!-- VII. CLOSING -->
+    <div class="section-num">VII. &mdash; Closing</div>
+    <h2 class="section-title">To those who see it</h2>
+
+    <div class="cols-2">
+      <p class="body drop-cap">I do not know if this will work. I do not know if anyone will care. I do not know if the market is ready, if the timing is right, if people will look at this and see what I see or if they will scroll past and forget.</p>
+
+      <p class="body">But I know the problem is real. I know it is getting worse every day. Every week there are more agents, more money, more trust placed in anonymous code with zero accountability. And I know that someone has to build the fix.</p>
+
+      <p class="body">So if you see what I see. If you have watched an agent rug someone and thought <em>&ldquo;this is wrong.&rdquo;</em> If you have built an agent and wished there was a way to prove it was legitimate. If you believe the agent economy deserves better than blind faith.</p>
+
+      <p class="body"><strong>Then stand with us.</strong></p>
+    </div>
+
+    <div class="double-rule"></div>
+
+    <p class="closing-text">Trust no agent.</p>
+    <p class="closing-text"><span class="closing-red">Verify all of them.</span></p>
+
+    <div class="sig">&mdash; trustnoagent</div>
+    <div class="sig">VOUCH &middot; EST. MMXXVI &middot; SOLANA</div>
+
+    <!-- FOOTER -->
+    <div class="paper-footer">
+      <div class="paper-footer-text">The Reputation Primitive &middot; Building in Public &middot; trustnoagent.xyz</div>
+    </div>
+
+  </div>
+</div>
+
+<a href="/" class="back-link">&larr; Back to VOUCH</a>
+
+</body>
+</html>
+

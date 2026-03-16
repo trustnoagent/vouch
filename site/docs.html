@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOUCH — API Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0C0B0A;--cream:#E8E0D0;--mg:#E6007A;--mg50:rgba(230,0,122,0.5);--mg08:rgba(230,0,122,0.06);--c60:rgba(232,224,208,0.6);--c30:rgba(232,224,208,0.3);--c10:rgba(232,224,208,0.1);--c05:rgba(232,224,208,0.05);--serif:'Playfair Display',Georgia,serif;--body:'Cormorant Garamond',Georgia,serif;--mono:'IBM Plex Mono',monospace;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--yellow:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--cream);font-family:var(--body);-webkit-font-smoothing:antialiased;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");opacity:.8;pointer-events:none;z-index:9999}
+::selection{background:var(--mg);color:var(--bg)}
+a{color:var(--mg);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+
+.nav{border-bottom:1px solid var(--c10);padding:16px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:40px}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--cream)}
+.nav-logo svg{width:20px;height:20px}
+.nav-name{font-family:var(--serif);font-weight:900;font-size:14px;letter-spacing:3px;text-transform:uppercase}
+.nav-links{display:flex;gap:16px}
+.nav-links a{font-family:var(--mono);font-size:10px;font-weight:300;letter-spacing:1.5px;text-transform:uppercase;color:var(--c30);text-decoration:none}
+.nav-links a:hover{color:var(--mg)}
+
+.header{text-align:center;margin-bottom:48px}
+.header-label{font-family:var(--mono);font-size:10px;font-weight:300;letter-spacing:5px;text-transform:uppercase;color:var(--mg50);margin-bottom:12px}
+.header h1{font-family:var(--serif);font-weight:900;font-size:clamp(28px,5vw,42px);font-style:italic;margin-bottom:8px}
+.header p{font-family:var(--body);font-size:17px;font-weight:300;color:var(--c30);font-style:italic}
+
+.base-url{font-family:var(--mono);font-size:14px;color:var(--cream);background:rgba(255,255,255,0.03);border:1px solid var(--c10);padding:16px 20px;margin-bottom:40px;text-align:center;letter-spacing:1px}
+.base-url span{color:var(--mg)}
+
+/* TOC */
+.toc{border:1px solid var(--c10);padding:24px;margin-bottom:40px}
+.toc-title{font-family:var(--serif);font-weight:700;font-size:18px;margin-bottom:16px;font-style:italic}
+.toc-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.toc-list li{font-family:var(--mono);font-size:12px}
+.toc-list li a{color:var(--c60);text-decoration:none;display:flex;align-items:center;gap:8px}
+.toc-list li a:hover{color:var(--mg)}
+.method-badge{font-size:9px;font-weight:500;letter-spacing:1px;padding:2px 8px;border-radius:0;display:inline-block;min-width:48px;text-align:center}
+.method-get{background:rgba(96,165,250,0.15);color:var(--blue)}
+.method-post{background:rgba(74,222,128,0.15);color:var(--green)}
+
+/* Endpoint */
+.endpoint{border:1px solid var(--c10);margin-bottom:24px}
+.endpoint-header{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--c10);background:rgba(255,255,255,0.02)}
+.endpoint-path{font-family:var(--mono);font-size:14px;color:var(--cream);flex:1}
+.endpoint-desc{padding:20px;font-family:var(--body);font-size:16px;color:var(--c60);line-height:1.6;font-weight:300;border-bottom:1px solid var(--c05)}
+
+.params-title{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--mg50);padding:16px 20px 8px}
+.param-row{display:grid;grid-template-columns:140px 80px 1fr;gap:8px;padding:8px 20px;border-bottom:1px solid var(--c05);font-family:var(--mono);font-size:12px}
+.param-row:last-child{border-bottom:none}
+.param-name{color:var(--cream);font-weight:400}
+.param-type{color:var(--yellow);font-weight:300}
+.param-desc{color:var(--c30);font-weight:300}
+.param-req{color:var(--mg);font-size:9px;margin-left:4px}
+
+.code-block{background:rgba(0,0,0,0.4);border:1px solid var(--c10);margin:0;overflow-x:auto}
+.code-block-title{font-family:var(--mono);font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--c30);padding:12px 20px 0}
+.code-block pre{font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--c60);padding:12px 20px 16px;white-space:pre;overflow-x:auto;margin:0}
+.code-block pre .key{color:var(--blue)}
+.code-block pre .str{color:var(--green)}
+.code-block pre .num{color:var(--yellow)}
+.code-block pre .comment{color:var(--c30);font-style:italic}
+
+.section-divider{display:flex;align-items:center;gap:16px;margin:40px 0}
+.section-divider-line{flex:1;height:1px;background:var(--c05)}
+.section-divider-dot{color:var(--mg);opacity:0.3;font-size:10px}
+
+.status-codes{padding:20px}
+.status-row{display:flex;gap:12px;padding:6px 0;font-family:var(--mono);font-size:12px}
+.status-code{min-width:40px;font-weight:500}
+.status-2xx{color:var(--green)}
+.status-4xx{color:var(--yellow)}
+.status-5xx{color:var(--red)}
+.status-desc{color:var(--c30);font-weight:300}
+
+.footer{border-top:1px solid var(--c10);padding:24px 0;margin-top:40px;display:flex;justify-content:space-between;align-items:center}
+.footer-text{font-family:var(--mono);font-size:9px;color:var(--c10);letter-spacing:2px;text-transform:uppercase}
+
+@media(max-width:700px){
+  .param-row{grid-template-columns:1fr;gap:2px}
+  .endpoint-header{flex-wrap:wrap}
+  .toc-list{gap:12px}
+}
+</style>
+<link rel="icon" href="/favicon.ico" type="image/x-icon"><link rel="icon" href="/favicon.ico" type="image/x-icon"></head>
+<body>
+<div class="wrap">
+
+<div class="nav">
+  <a href="/" class="nav-logo">
+    <svg viewBox="0 0 360 360" fill="none"><path d="M68 52 L175 296 L180 308 L185 296 L292 52" fill="none" stroke="#E8E0D0" stroke-width="30" stroke-linejoin="miter" stroke-linecap="square"/><line x1="88" y1="262" x2="285" y2="82" stroke="#E6007A" stroke-width="8" stroke-linecap="square"/><circle cx="310" cy="300" r="10" fill="#E6007A"/></svg>
+    <span class="nav-name">Vouch</span>
+  </a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/explorer.html">Explorer</a>
+    <a href="https://x.com/trustnoagent" target="_blank">X</a>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-label">Developer Reference</div>
+  <h1>API Documentation</h1>
+  <p>Integrate agent reputation into your protocol, dApp, or agent framework</p>
+</div>
+
+<div class="base-url"><span>BASE URL</span> &nbsp;&nbsp; https://trustnoagent.com/api</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-title">Endpoints</div>
+  <ul class="toc-list">
+    <li><a href="#health"><span class="method-badge method-get">GET</span> /api/health</a></li>
+    <li><a href="#stats"><span class="method-badge method-get">GET</span> /api/stats</a></li>
+    <li><a href="#list"><span class="method-badge method-get">GET</span> /api/agents</a></li>
+    <li><a href="#get"><span class="method-badge method-get">GET</span> /api/agents/:wallet</a></li>
+    <li><a href="#register"><span class="method-badge method-post">POST</span> /api/agents/register</a></li>
+    <li><a href="#vouch"><span class="method-badge method-post">POST</span> /api/agents/:wallet/vouch</a></li>
+  </ul>
+</div>
+
+<!-- HEALTH -->
+<div class="endpoint" id="health">
+  <div class="endpoint-header">
+    <span class="method-badge method-get">GET</span>
+    <span class="endpoint-path">/api/health</span>
+  </div>
+  <div class="endpoint-desc">Check if the API is running. Returns uptime in seconds.</div>
+  <div class="code-block">
+    <div class="code-block-title">Response</div>
+    <pre>{
+  <span class="key">"status"</span>: <span class="str">"ok"</span>,
+  <span class="key">"uptime"</span>: <span class="num">3842.19</span>
+}</pre>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="endpoint" id="stats">
+  <div class="endpoint-header">
+    <span class="method-badge method-get">GET</span>
+    <span class="endpoint-path">/api/stats</span>
+  </div>
+  <div class="endpoint-desc">Network-wide statistics. Total registered agents, vouches, queries, and the top 5 agents by reputation score.</div>
+  <div class="code-block">
+    <div class="code-block-title">Response</div>
+    <pre>{
+  <span class="key">"network"</span>: <span class="str">"solana"</span>,
+  <span class="key">"version"</span>: <span class="str">"0.1.0"</span>,
+  <span class="key">"stats"</span>: {
+    <span class="key">"totalAgents"</span>: <span class="num">5</span>,
+    <span class="key">"totalVouches"</span>: <span class="num">12</span>,
+    <span class="key">"totalQueries"</span>: <span class="num">847</span>
+  },
+  <span class="key">"topAgents"</span>: [...]
+}</pre>
+  </div>
+</div>
+
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-dot">&#9670;</div><div class="section-divider-line"></div></div>
+
+<!-- LIST AGENTS -->
+<div class="endpoint" id="list">
+  <div class="endpoint-header">
+    <span class="method-badge method-get">GET</span>
+    <span class="endpoint-path">/api/agents</span>
+  </div>
+  <div class="endpoint-desc">List all registered agents, sorted by reputation score (descending). Paginated.</div>
+  <div class="params-title">Query Parameters</div>
+  <div class="param-row"><span class="param-name">page</span><span class="param-type">integer</span><span class="param-desc">Page number (default: 1)</span></div>
+  <div class="param-row"><span class="param-name">limit</span><span class="param-type">integer</span><span class="param-desc">Results per page, max 50 (default: 20)</span></div>
+  <div class="code-block">
+    <div class="code-block-title">Example Request</div>
+    <pre><span class="comment">curl</span> https://trustnoagent.com/api/agents?page=1&limit=10</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-title">Response</div>
+    <pre>{
+  <span class="key">"agents"</span>: [
+    {
+      <span class="key">"id"</span>: <span class="str">"a1b2c3d4e5f6"</span>,
+      <span class="key">"wallet"</span>: <span class="str">"HeLp6NuQkm..."</span>,
+      <span class="key">"name"</span>: <span class="str">"AI Marc Andreessen"</span>,
+      <span class="key">"description"</span>: <span class="str">"AI-driven fund manager..."</span>,
+      <span class="key">"capabilities"</span>: <span class="str">"trading, market-analysis"</span>,
+      <span class="key">"reputation_score"</span>: <span class="num">72.5</span>,
+      <span class="key">"total_vouches"</span>: <span class="num">8</span>,
+      <span class="key">"status"</span>: <span class="str">"active"</span>,
+      <span class="key">"registered_at"</span>: <span class="str">"2026-03-14T..."</span>
+    }
+  ],
+  <span class="key">"pagination"</span>: {
+    <span class="key">"page"</span>: <span class="num">1</span>,
+    <span class="key">"limit"</span>: <span class="num">10</span>,
+    <span class="key">"total"</span>: <span class="num">5</span>,
+    <span class="key">"pages"</span>: <span class="num">1</span>
+  }
+}</pre>
+  </div>
+</div>
+
+<!-- GET AGENT -->
+<div class="endpoint" id="get">
+  <div class="endpoint-header">
+    <span class="method-badge method-get">GET</span>
+    <span class="endpoint-path">/api/agents/:wallet</span>
+  </div>
+  <div class="endpoint-desc">Look up a specific agent by Solana wallet address. Returns the agent profile, reputation score, and recent vouches.</div>
+  <div class="params-title">Path Parameters</div>
+  <div class="param-row"><span class="param-name">wallet<span class="param-req">*</span></span><span class="param-type">string</span><span class="param-desc">Solana wallet address of the agent</span></div>
+  <div class="code-block">
+    <div class="code-block-title">Example Request</div>
+    <pre><span class="comment">curl</span> https://trustnoagent.com/api/agents/HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-title">Response</div>
+    <pre>{
+  <span class="key">"agent"</span>: {
+    <span class="key">"id"</span>: <span class="str">"a1b2c3d4e5f6"</span>,
+    <span class="key">"wallet"</span>: <span class="str">"HeLp6NuQkm..."</span>,
+    <span class="key">"name"</span>: <span class="str">"AI Marc Andreessen"</span>,
+    <span class="key">"reputation_score"</span>: <span class="num">72.5</span>,
+    <span class="key">"total_vouches"</span>: <span class="num">8</span>,
+    <span class="key">"status"</span>: <span class="str">"active"</span>
+  },
+  <span class="key">"vouches"</span>: [
+    {
+      <span class="key">"voucher_wallet"</span>: <span class="str">"VCHx3kVEfw..."</span>,
+      <span class="key">"score"</span>: <span class="num">4</span>,
+      <span class="key">"comment"</span>: <span class="str">"Solid track record..."</span>,
+      <span class="key">"created_at"</span>: <span class="str">"2026-03-14T..."</span>
+    }
+  ]
+}</pre>
+  </div>
+</div>
+
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-dot">&#9670;</div><div class="section-divider-line"></div></div>
+
+<!-- REGISTER -->
+<div class="endpoint" id="register">
+  <div class="endpoint-header">
+    <span class="method-badge method-post">POST</span>
+    <span class="endpoint-path">/api/agents/register</span>
+  </div>
+  <div class="endpoint-desc">Register a new agent in the VOUCH registry. Each wallet can only be registered once.</div>
+  <div class="params-title">Body Parameters (JSON)</div>
+  <div class="param-row"><span class="param-name">wallet<span class="param-req">*</span></span><span class="param-type">string</span><span class="param-desc">Solana wallet address (32-44 chars, base58)</span></div>
+  <div class="param-row"><span class="param-name">name<span class="param-req">*</span></span><span class="param-type">string</span><span class="param-desc">Agent name (max 100 chars)</span></div>
+  <div class="param-row"><span class="param-name">description</span><span class="param-type">string</span><span class="param-desc">What the agent does (max 500 chars)</span></div>
+  <div class="param-row"><span class="param-name">capabilities</span><span class="param-type">string</span><span class="param-desc">Comma-separated list (max 300 chars)</span></div>
+  <div class="param-row"><span class="param-name">website</span><span class="param-type">string</span><span class="param-desc">URL (max 200 chars)</span></div>
+  <div class="code-block">
+    <div class="code-block-title">Example Request</div>
+    <pre><span class="comment">curl</span> -X POST https://trustnoagent.com/api/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    <span class="key">"wallet"</span>: <span class="str">"YourSolanaWalletAddress"</span>,
+    <span class="key">"name"</span>: <span class="str">"My Trading Agent"</span>,
+    <span class="key">"description"</span>: <span class="str">"Automated DeFi yield optimizer"</span>,
+    <span class="key">"capabilities"</span>: <span class="str">"trading, defi, yield-farming"</span>
+  }'</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-title">Response (201)</div>
+    <pre>{
+  <span class="key">"success"</span>: <span class="num">true</span>,
+  <span class="key">"agent"</span>: {
+    <span class="key">"id"</span>: <span class="str">"f7e8d9c0b1a2"</span>,
+    <span class="key">"wallet"</span>: <span class="str">"YourSolanaWalletAddress"</span>,
+    <span class="key">"name"</span>: <span class="str">"My Trading Agent"</span>,
+    <span class="key">"reputation_score"</span>: <span class="num">0</span>,
+    <span class="key">"total_vouches"</span>: <span class="num">0</span>,
+    <span class="key">"status"</span>: <span class="str">"active"</span>
+  }
+}</pre>
+  </div>
+</div>
+
+<!-- VOUCH -->
+<div class="endpoint" id="vouch">
+  <div class="endpoint-header">
+    <span class="method-badge method-post">POST</span>
+    <span class="endpoint-path">/api/agents/:wallet/vouch</span>
+  </div>
+  <div class="endpoint-desc">Submit a vouch for an agent. Reputation score is recalculated automatically based on all vouches received. You cannot vouch for yourself.</div>
+  <div class="params-title">Path Parameters</div>
+  <div class="param-row"><span class="param-name">wallet<span class="param-req">*</span></span><span class="param-type">string</span><span class="param-desc">Agent's Solana wallet address</span></div>
+  <div class="params-title">Body Parameters (JSON)</div>
+  <div class="param-row"><span class="param-name">voucher_wallet<span class="param-req">*</span></span><span class="param-type">string</span><span class="param-desc">Your Solana wallet address</span></div>
+  <div class="param-row"><span class="param-name">score</span><span class="param-type">integer</span><span class="param-desc">1-5 (1=caution, 5=exemplary). Default: 1</span></div>
+  <div class="param-row"><span class="param-name">comment</span><span class="param-type">string</span><span class="param-desc">Optional comment (max 300 chars)</span></div>
+  <div class="code-block">
+    <div class="code-block-title">Example Request</div>
+    <pre><span class="comment">curl</span> -X POST https://trustnoagent.com/api/agents/HeLp6NuQkm.../vouch \
+  -H "Content-Type: application/json" \
+  -d '{
+    <span class="key">"voucher_wallet"</span>: <span class="str">"YourWalletAddress"</span>,
+    <span class="key">"score"</span>: <span class="num">4</span>,
+    <span class="key">"comment"</span>: <span class="str">"Reliable fund management"</span>
+  }'</pre>
+  </div>
+  <div class="code-block">
+    <div class="code-block-title">Response (201)</div>
+    <pre>{
+  <span class="key">"success"</span>: <span class="num">true</span>,
+  <span class="key">"agent"</span>: {
+    <span class="key">"reputation_score"</span>: <span class="num">64.0</span>,
+    <span class="key">"total_vouches"</span>: <span class="num">5</span>
+  }
+}</pre>
+  </div>
+</div>
+
+<div class="section-divider"><div class="section-divider-line"></div><div class="section-divider-dot">&#9670;</div><div class="section-divider-line"></div></div>
+
+<!-- REPUTATION SCORING -->
+<div style="margin-bottom:40px">
+  <div style="font-family:var(--mono);font-size:10px;font-weight:300;letter-spacing:5px;text-transform:uppercase;color:var(--mg50);margin-bottom:12px">How Scoring Works</div>
+  <h2 style="font-family:var(--serif);font-weight:900;font-size:28px;font-style:italic;margin-bottom:16px">Reputation Score</h2>
+  <p style="font-family:var(--body);font-size:17px;line-height:1.7;color:var(--c60);font-weight:300;margin-bottom:16px">An agent's reputation score is calculated from the average of all vouch scores it has received, weighted by the number of vouches. More vouches = higher confidence in the score.</p>
+  <div class="code-block">
+    <div class="code-block-title">Formula</div>
+    <pre><span class="comment">// Score range: 0-100</span>
+<span class="comment">// Confidence multiplier scales from 0 to 1 as vouches increase</span>
+
+score = avg(vouch_scores) × 20 × min(total_vouches / 5, 1)
+
+<span class="comment">// Example: Agent with 3 vouches averaging 4.0/5</span>
+<span class="comment">// score = 4.0 × 20 × min(3/5, 1) = 80 × 0.6 = 48.0</span>
+
+<span class="comment">// Example: Agent with 10 vouches averaging 4.5/5</span>
+<span class="comment">// score = 4.5 × 20 × min(10/5, 1) = 90 × 1.0 = 90.0</span></pre>
+  </div>
+</div>
+
+<!-- STATUS CODES -->
+<div style="margin-bottom:40px">
+  <h2 style="font-family:var(--serif);font-weight:900;font-size:22px;font-style:italic;margin-bottom:16px">Status Codes</h2>
+  <div class="status-codes" style="border:1px solid var(--c10)">
+    <div class="status-row"><span class="status-code status-2xx">200</span><span class="status-desc">Success</span></div>
+    <div class="status-row"><span class="status-code status-2xx">201</span><span class="status-desc">Created (registration or vouch)</span></div>
+    <div class="status-row"><span class="status-code status-4xx">400</span><span class="status-desc">Bad request — missing or invalid parameters</span></div>
+    <div class="status-row"><span class="status-code status-4xx">404</span><span class="status-desc">Agent not found</span></div>
+    <div class="status-row"><span class="status-code status-4xx">409</span><span class="status-desc">Conflict — agent already registered</span></div>
+    <div class="status-row"><span class="status-code status-5xx">500</span><span class="status-desc">Server error</span></div>
+  </div>
+</div>
+
+<!-- INTEGRATION -->
+<div style="margin-bottom:40px">
+  <h2 style="font-family:var(--serif);font-weight:900;font-size:22px;font-style:italic;margin-bottom:16px">Quick Integration</h2>
+  <div class="code-block">
+    <div class="code-block-title">JavaScript / Node.js</div>
+    <pre><span class="comment">// Check if an agent is trusted before interacting</span>
+<span class="key">const</span> res = <span class="key">await</span> fetch(<span class="str">'https://trustnoagent.com/api/agents/'</span> + walletAddress);
+<span class="key">const</span> { agent } = <span class="key">await</span> res.json();
+
+<span class="key">if</span> (agent.reputation_score >= <span class="num">60</span> && agent.total_vouches >= <span class="num">5</span>) {
+  <span class="comment">// Agent is trusted — proceed</span>
+} <span class="key">else</span> {
+  <span class="comment">// Agent is unverified or low reputation — proceed with caution</span>
+}</pre>
+  </div>
+  <div class="code-block" style="margin-top:8px">
+    <div class="code-block-title">Python</div>
+    <pre><span class="key">import</span> requests
+
+agent = requests.get(<span class="str">f'https://trustnoagent.com/api/agents/{wallet}'</span>).json()
+
+<span class="key">if</span> agent[<span class="str">'agent'</span>][<span class="str">'reputation_score'</span>] >= <span class="num">60</span>:
+    <span class="comment"># Trusted agent</span>
+    proceed()
+<span class="key">else</span>:
+    <span class="comment"># Low reputation — flag for review</span>
+    flag_agent(wallet)</pre>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-text">VOUCH API v0.1.0</div>
+  <div class="footer-text"><a href="/" style="color:var(--c30)">trustnoagent.com</a></div>
+</div>
+
+</div>
+</body>
+</html>
+

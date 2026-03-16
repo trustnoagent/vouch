@@ -1,0 +1,6 @@
+{
+  "name": "@vouch/solana-agent-plugin",
+  "version": "0.1.0",
+  "description": "VOUCH reputation primitive for Solana Agent Kit",
+  "main": "src/index.js"
+}
