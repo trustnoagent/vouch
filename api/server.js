@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const path = require('path');
 const { calculateOnChainScore, calculateCompositeScore } = require('./scorer');
 
+const { createAccessControl } = require('./middleware');
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -73,6 +74,10 @@ const stmts = {
   countQueries: db.prepare('SELECT COUNT(*) as count FROM queries'),
   getAllActive: db.prepare('SELECT * FROM agents WHERE status = ?'),
 };
+
+// === API ACCESS CONTROL ===
+const { accessControl, generateApiKey, addCredits, getUsageStats } = createAccessControl(db);
+app.use(accessControl);
 
 function genId() { return crypto.randomBytes(8).toString('hex'); }
 
@@ -193,10 +198,12 @@ app.get('/api/stats', (req, res) => {
   const { count: totalQueries } = stmts.countQueries.get();
   const totalVouches = db.prepare('SELECT COUNT(*) as count FROM vouches').get().count;
   const topAgents = db.prepare("SELECT wallet, name, reputation_score, onchain_score, vouch_score, total_vouches FROM agents WHERE status = 'active' ORDER BY reputation_score DESC LIMIT 5").all();
+  const usage = getUsageStats();
   res.json({
-    network: 'solana', version: '0.2.0',
+    network: 'solana', version: '0.3.0',
     scoring: { model: 'composite', weights: { onchain: 0.60, vouch: 0.25, endorsement: 0.15 } },
     stats: { totalAgents, totalVouches, totalQueries },
+    usage,
     topAgents
   });
 });
